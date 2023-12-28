@@ -63,6 +63,8 @@ while True:
     facesCurFrame = face_recognition.face_locations(imgS)
     encodesCurFrame = face_recognition.face_encodings(imgS,facesCurFrame)
 
+    current_time = datetime.now()
+
     if facesCurFrame:
         last_seen_time = datetime.now()  # Update the last seen time when a face is detected
 
@@ -85,6 +87,36 @@ while True:
             cv2.rectangle(img,(x1,y1),(x2,y2),(0,255,0),2)
             cv2.rectangle(img,(x1,y2-35),(x2,y2),(0,255,0),cv2.FILLED)
             cv2.putText(img,name,(x1+6,y2-6),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
+
+            if name in attendance_inserted:
+                entry_time = attendance_inserted[name]['entry_time']
+                working_hours = (current_time - entry_time).total_seconds() / 3600.0
+
+                # Update the database with working hours
+                try:
+                    sql_update = "UPDATE attendance SET working_hours = %s WHERE name = %s AND discipline_status = 1"
+                    val_update = (working_hours, name)
+                    cursor.execute(sql_update, val_update)
+                    conn.commit()
+
+                except Exception as e:
+                    print(f"Error updating working hours in the database: {e}")
+
+            if name not in attendance_inserted:
+                try:
+                    # Insert the attendance record into the database
+                    sql_insert = "INSERT INTO attendance (name, discipline_status, entry_time, timestamp) VALUES (%s, %s, %s, CURRENT_TIMESTAMP)"
+                    val_insert = (name, discipline_status, current_time)
+                    cursor.execute(sql_insert, val_insert)
+                    conn.commit()
+
+                    # Update the flag to indicate that attendance has been inserted for this person
+                    attendance_inserted[name] = {
+                        'entry_time': current_time,
+                        'exit_count': 0,
+                        'last_seen_time': current_time,
+                    }
+
 
             # # Insert the attendance record into the database
             # try:
@@ -125,17 +157,21 @@ while True:
 
             # last
                         # Check if the attendance record already exists
-            if name not in attendance_inserted:
-                try:
-                    # Insert the attendance record into the database
-                    sql_insert = "INSERT INTO attendance (name, discipline_status, timestamp) VALUES (%s, %s, CURRENT_TIMESTAMP)"
-                    val_insert = (name, discipline_status)
-                    cursor.execute(sql_insert, val_insert)
-                    conn.commit()
 
-                    # Update the flag to indicate that attendance has been inserted for this person
-                    attendance_inserted[name] = True
 
+            # if name not in attendance_inserted:
+            #     try:
+            #         # Insert the attendance record into the database
+            #         sql_insert = "INSERT INTO attendance (name, discipline_status, timestamp) VALUES (%s, %s, CURRENT_TIMESTAMP)"
+            #         val_insert = (name, discipline_status)
+            #         cursor.execute(sql_insert, val_insert)
+            #         conn.commit()
+
+            #         # Update the flag to indicate that attendance has been inserted for this person
+            #         attendance_inserted[name] = True
+
+            #     except Exception as e:
+            #         print(f"Error inserting into database: {e}")
                 except Exception as e:
                     print(f"Error inserting into database: {e}")
 
