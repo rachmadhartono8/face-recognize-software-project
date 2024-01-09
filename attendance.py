@@ -105,73 +105,18 @@ while True:
             if name not in attendance_inserted:
                 try:
                     # Insert the attendance record into the database
-                    sql_insert = "INSERT INTO attendance (name, discipline_status, entry_time, timestamp) VALUES (%s, %s, %s, CURRENT_TIMESTAMP)"
-                    val_insert = (name, discipline_status, current_time)
+                    sql_insert = "INSERT INTO attendance (name, discipline_status, entry_time, exit_count, last_exit_time, timestamp) VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)"
+                    val_insert = (name, discipline_status, entry_time, 0, current_time)
                     cursor.execute(sql_insert, val_insert)
                     conn.commit()
 
                     # Update the flag to indicate that attendance has been inserted for this person
                     attendance_inserted[name] = {
-                        'entry_time': current_time,
+                        'entry_time': entry_time,
                         'exit_count': 0,
-                        'last_seen_time': current_time,
+                        'last_exit_time': current_time,
                     }
 
-
-            # # Insert the attendance record into the database
-            # try:
-            #     sql = "INSERT INTO attendance (name) VALUES (%s)"
-            #     val = (name,)
-            #     cursor.execute(sql, val)
-            #     conn.commit()
-            # except Exception as e:
-            #     print(f"Error inserting into database: {e}")
-
-
-            # Insert the attendance record into the database
-            # bisa ini 
-            # try:
-            #     sql = "INSERT INTO attendance (name, timestamp) VALUES (%s, CURRENT_TIMESTAMP)"
-            #     val = (name,)
-            #     cursor.execute(sql, val)
-            #     conn.commit()
-            # except Exception as e:
-            #     print(f"Error inserting into database: {e}")
-
-            # sekali insert saja
-            # try:
-            #     sql_check = "SELECT * FROM attendance WHERE name = %s AND timestamp = CURRENT_TIMESTAMP"
-            #     val_check = (name,)
-            #     cursor.execute(sql_check, val_check)
-            #     existing_record = cursor.fetchone()
-
-            #     if not existing_record:
-            #         # Insert the attendance record into the database
-            #         sql_insert = "INSERT INTO attendance (name, discipline_status, timestamp) VALUES (%s, %s, CURRENT_TIMESTAMP)"
-            #         val_insert = (name, discipline_status)
-            #         cursor.execute(sql_insert, val_insert)
-            #         conn.commit()
-
-            # except Exception as e:
-            #     print(f"Error checking or inserting into database: {e}")
-
-            # last
-                        # Check if the attendance record already exists
-
-
-            # if name not in attendance_inserted:
-            #     try:
-            #         # Insert the attendance record into the database
-            #         sql_insert = "INSERT INTO attendance (name, discipline_status, timestamp) VALUES (%s, %s, CURRENT_TIMESTAMP)"
-            #         val_insert = (name, discipline_status)
-            #         cursor.execute(sql_insert, val_insert)
-            #         conn.commit()
-
-            #         # Update the flag to indicate that attendance has been inserted for this person
-            #         attendance_inserted[name] = True
-
-            #     except Exception as e:
-            #         print(f"Error inserting into database: {e}")
                 except Exception as e:
                     print(f"Error inserting into database: {e}")
 
