@@ -12,7 +12,7 @@ db_config = {
     'host': 'localhost',
     'user': 'root',
     'password': '',
-    'database': 'keyperformance'
+    'database': 'keyperformancekpi'
 }
 
 # Create a MySQL connection
@@ -104,6 +104,7 @@ while True:
 
             if name not in attendance_inserted:
                 try:
+                    entry_time = datetime.now()
                     # Insert the attendance record into the database
                     sql_insert = "INSERT INTO attendance (name, discipline_status, entry_time, exit_count, last_exit_time, timestamp) VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)"
                     val_insert = (name, discipline_status, entry_time, 0, current_time)
